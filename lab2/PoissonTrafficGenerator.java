@@ -7,6 +7,12 @@ class PoissonTrafficGenerator {
     return System.nanoTime() / 1000;
   }
 
+  private static class Packet {
+    int seqNo;
+    long time;
+    int size;
+  }
+
   private static void sendPackets(InetAddress addr, String filename) {
     BufferedReader bis = null;
     String currentLine = null;
@@ -21,7 +27,7 @@ class PoissonTrafficGenerator {
       FileReader fis = new FileReader(fin);
       bis = new BufferedReader(fis);
 
-      long startTime = currentTimeMicros();
+      List<Packet> packets = new ArrayList<Packet>();
 
       /*
        *  Read file line-by-line until the end of the file
@@ -35,15 +41,25 @@ class PoissonTrafficGenerator {
         String col2 = st.nextToken();
         String col3 = st.nextToken();
 
+        Packet p = new Packet();
+
         /*
          *  Convert each element to desired data type
          */
-        int seqNo = Integer.parseInt(col1);
-        long time = Long.parseLong(col2);
-        int size = Integer.parseInt(col3);
+        p.seqNo = Integer.parseInt(col1);
+        p.time = Long.parseLong(col2);
+        p.size = Integer.parseInt(col3);
+        packets.add(p);
+      }
 
+      long startTime = currentTimeMicros();
+
+      /*
+       * Send the data once the entire file has been read
+       */
+      for (Packet p : packets) {
         long sendTime;
-        while ((sendTime = currentTimeMicros() - startTime) <= time) {
+        while ((sendTime = currentTimeMicros() - startTime) <= p.time) {
           // Wait until the correct time to send the packet
         }
 
@@ -51,9 +67,9 @@ class PoissonTrafficGenerator {
                            ": packetTime=" + time +
                            ", sendTime=" + sendTime);*/
 
-        byte[] buf = new byte[size];
-        DatagramPacket p = new DatagramPacket(buf, buf.length, addr, 4444);
-        socket.send(p);
+        byte[] buf = new byte[p.size];
+        DatagramPacket d = new DatagramPacket(buf, buf.length, addr, 4444);
+        socket.send(d);
       }
     } catch (IOException e) {
       // Catch io errors from FileInputStream or readLine()

@@ -10,11 +10,18 @@ for i = 1:length(poisson_arrivals)
     poisson_time(i) = poisson_time(i) - poisson_time(1);
     poisson_sum = poisson_sum + poisson_size(i);
     poisson_arrivals(i) = poisson_sum;
-    
+
+end
+
+for i = 1:length(trafficsink_arrivals)
     trafficsink_sum = trafficsink_sum + trafficsink_size(i);
     trafficsink_arrivals(i) = trafficsink_sum;
 end
 
 figure(1)
 plot(poisson_time, poisson_arrivals, 'r', trafficsink_time, trafficsink_arrivals, 'b')
-%xlim([0, trafficsink_time(10000)])
+legend('Poisson data', 'Traffic Sink data')
+title('Arrivals for Poisson vs. Traffic Sink Data')
+xlabel('Time (microseconds)')
+ylabel('Arrivals (bytes)')
+xlim([0, trafficsink_time(10000)])
