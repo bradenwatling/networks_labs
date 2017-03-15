@@ -1,6 +1,6 @@
-[gen_i, gen_time, gen_size] = textread('trafficgen_2.2.2.data', '%f %f %f');
-[bucket_time, bucket_size, bucket_buffer_size, bucket_no_tokens] = textread('bucket_2.2.2.txt', '%f %f %f %f');
-[sink_i, sink_time, sink_size] = textread('trafficsink_2.2.2.data', '%f %f %f');
+[gen_i, gen_time, gen_size] = textread('trafficgen_2.2.3.data', '%f %f %f');
+[bucket_time, bucket_size, bucket_buffer_size, bucket_no_tokens] = textread('bucket_2.2.3.txt', '%f %f %f %f');
+[sink_i, sink_time, sink_size] = textread('trafficsink_2.2.3.data', '%f %f %f');
 
 gen_time_sum = -gen_time(1);
 gen_sum = 0;
@@ -46,6 +46,7 @@ plot(bucket_acc_time, bucket_buffer_size, 'r')
 title('Backlog Size vs. Time')
 xlabel('Time (microseconds)')
 ylabel('Size (bytes)')
+
 figure(3)
 plot(bucket_acc_time, bucket_no_tokens, 'b')
 title('Token Bucket Size vs. Time')

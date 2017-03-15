@@ -16,7 +16,7 @@ class ReferenceTrafficGenerator {
       /*
        * Open file for output
        */
-      FileOutputStream fout =  new FileOutputStream("../trafficgen_2.2.2.data");
+      FileOutputStream fout =  new FileOutputStream("../trafficgen_2.2.3.data");
       PrintStream pout = new PrintStream(fout);
 
       socket = new DatagramSocket();
@@ -78,7 +78,7 @@ class ReferenceTrafficGenerator {
 
     // 2.2.1 - 800us, 1, 100
     // 2.2.2 - 8000us, 10, 100
-    // 2.2.3 - 205us, 1, 100
-    sendPackets(addr, 8000000, 10, 100);
+    // 2.2.3 - 421.053us, 1, 100
+    sendPackets(addr, 421053, 1, 100);
   }
 }

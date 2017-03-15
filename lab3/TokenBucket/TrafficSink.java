@@ -15,7 +15,7 @@ class TrafficSink {
     /*
      * Open file for output
      */
-    FileOutputStream fout =  new FileOutputStream("../trafficsink_2.2.2.data");
+    FileOutputStream fout =  new FileOutputStream("../trafficsink_2.2.3.data");
 	//trafficsick_poisson.data
 	//trafficsick_eth.data
 	//trafficsick_movie.data
