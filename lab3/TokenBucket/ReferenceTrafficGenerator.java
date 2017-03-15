@@ -66,6 +66,6 @@ class ReferenceTrafficGenerator {
   public static void main(String[] args) throws IOException {
     InetAddress addr = InetAddress.getByName(args[0]);
 
-    sendPackets(addr, 800, 1, 100);
+    sendPackets(addr, 8000, 10, 100);
   }
 }
