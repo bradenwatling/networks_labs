@@ -16,7 +16,7 @@ class ReferenceTrafficGenerator {
       /*
        * Open file for output
        */
-      FileOutputStream fout =  new FileOutputStream("../trafficgen_2.2.1.data");
+      FileOutputStream fout =  new FileOutputStream("../trafficgen_2.2.2.data");
       PrintStream pout = new PrintStream(fout);
 
       socket = new DatagramSocket();
@@ -25,6 +25,8 @@ class ReferenceTrafficGenerator {
       long groupEndTime = startTime + T;
 
       long previousPacketTime = startTime;
+
+      byte[] buf = new byte[L];
 
       // We are going to be sending 10000 packets
       for (int i = 0; i < Math.ceil(10000.0 / N); i++) {
@@ -37,7 +39,6 @@ class ReferenceTrafficGenerator {
           // Record the time that we sent this packet
           long packetTime = currentTimeNanos();
           // Send a packet of size L
-          byte[] buf = new byte[L];
           DatagramPacket d = new DatagramPacket(buf, buf.length, addr, 4444);
           socket.send(d);
           if (i == 0 && j == 0) {
@@ -76,8 +77,8 @@ class ReferenceTrafficGenerator {
     InetAddress addr = InetAddress.getByName(args[0]);
 
     // 2.2.1 - 800us, 1, 100
-    // 2.2.1 - 8000us, 10, 100
-    // 2.2.1 - 205us, 1, 100
-    sendPackets(addr, 800000, 1, 100);
+    // 2.2.2 - 8000us, 10, 100
+    // 2.2.3 - 205us, 1, 100
+    sendPackets(addr, 8000000, 10, 100);
   }
 }
