@@ -67,7 +67,7 @@ public class Bucket implements Runnable
 		noTokens += (int) (addedTokens);
 		// Update lastTime to hold the time of the last token we generated. We subtract the remainder
 		// so that we don't lose any information about partially generated tokens
-		lastTime = now - (now % tokenInterval);
+		lastTime = now - (elapsed % tokenInterval);
 
     if (noTokens > size) {
       noTokens = size;

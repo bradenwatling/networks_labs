@@ -16,7 +16,7 @@ class ReferenceTrafficGenerator {
       /*
        * Open file for output
        */
-      FileOutputStream fout =  new FileOutputStream("../trafficgen_2.2.3.data");
+      FileOutputStream fout =  new FileOutputStream("../trafficgen_2.4.data");
       PrintStream pout = new PrintStream(fout);
 
       socket = new DatagramSocket();
@@ -52,7 +52,10 @@ class ReferenceTrafficGenerator {
           // Record the time of the previous packet
           previousPacketTime = packetTime;
         }
-        int k = 0;
+        groupEndTime = currentTimeNanos() + T;
+        while (currentTimeNanos() < groupEndTime) {
+        }
+        /*
         long waitingTime = groupEndTime - currentTimeNanos();
         if (waitingTime > 0) {
           try {
@@ -61,7 +64,7 @@ class ReferenceTrafficGenerator {
             // TODO Auto-generated catch block
             e.printStackTrace();
           }
-        }
+        }*/
       }
     } catch (IOException e) {
       // Catch io errors from FileInputStream or readLine()
@@ -79,6 +82,6 @@ class ReferenceTrafficGenerator {
     // 2.2.1 - 800us, 1, 100
     // 2.2.2 - 8000us, 10, 100
     // 2.2.3 - 421.053us, 1, 100
-    sendPackets(addr, 421053, 1, 100);
+    sendPackets(addr, 260000, 4, 5000);
   }
 }
