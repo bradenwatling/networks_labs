@@ -7,7 +7,7 @@ class TrafficSink {
   }
 
   public static void main(String[] args) throws IOException {
-    DatagramSocket socket = new DatagramSocket(4445);
+    DatagramSocket socket = new DatagramSocket(4444);
     byte[] buf = new byte[1500];
     DatagramPacket p = new DatagramPacket(buf, buf.length);
     System.out.println("Waiting ...");
@@ -15,7 +15,7 @@ class TrafficSink {
     /*
      * Open file for output
      */
-    FileOutputStream fout =  new FileOutputStream("trafficsink_eth.data");
+    FileOutputStream fout =  new FileOutputStream("trafficsink_reference.data");
 	//trafficsick_poisson.data
 	//trafficsick_eth.data
 	//trafficsick_movie.data
@@ -38,7 +38,7 @@ class TrafficSink {
        *  Write line to output file
        */
       pout.println(i++ + "\t" + arrivalTime + "\t" + p.getLength());
-System.out.println(i + " : " + p.getLength());
+//System.out.println(i + " : " + p.getLength());
     }
   }
 }

@@ -10,17 +10,15 @@ class ReferenceTrafficGenerator {
   /*
    * Every T msec transmit a group of N packets back-to-back, each of size L
    */
-  private static void sendPackets(InetAddress addr, String filename, long T, int N, int L) {
+  private static void sendPackets(InetAddress addr, long T, int N, int L) {
     // Convert T to usec from msec (1000 usec/msec)
     T *= 1000;
-    BufferedReader bis = null;
-    String currentLine = null;
     DatagramSocket socket = null;
     try {
       /*
        * Open file for output
        */
-      FileOutputStream fout =  new FileOutputStream("reference_trafficsink.data");
+      FileOutputStream fout =  new FileOutputStream("trafficgen_reference.data");
       PrintStream pout = new PrintStream(fout);
 
       socket = new DatagramSocket();
@@ -61,14 +59,6 @@ class ReferenceTrafficGenerator {
       // Catch io errors from FileInputStream or readLine()
       System.out.println("IOException: " + e.getMessage());
     } finally {
-      // Close files
-      if (bis != null) {
-        try {
-          bis.close();
-        } catch (IOException e) {
-          System.out.println("IOException: " +  e.getMessage());
-        }
-      }
       if (socket != null) {
         socket.close();
       }
@@ -78,6 +68,6 @@ class ReferenceTrafficGenerator {
   public static void main(String[] args) throws IOException {
     InetAddress addr = InetAddress.getByName(args[0]);
 
-    sendPackets(addr, "poisson3.data", 1000, 1000, 50);
+    sendPackets(addr, 1000, 1000, 50);
   }
 }
