@@ -82,6 +82,6 @@ class ReferenceTrafficGenerator {
     // 2.2.1 - 800us, 1, 100
     // 2.2.2 - 8000us, 10, 100
     // 2.2.3 - 421.053us, 1, 100
-    sendPackets(addr, 260000, 4, 5000);
+    sendPackets(addr, 260000, 10, 1480);
   }
 }

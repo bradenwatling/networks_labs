@@ -11,10 +11,10 @@ public class part2_4 {
     // 2.2.2 - size_TB = 500
     // 2.2.3 - size_TB = 100
     // 2.4 - Choose the maximum rate that we can fill the bucket, which is one token every nanosecond
-    int size_TB = 20000;
+    int size_TB = 19240;
     int rate_TB = 1000000000;
 		 TokenBucket lb = new TokenBucket(4444, "localhost", 4445,
-       5000, 100*5000, size_TB, rate_TB, "bucket_2.4.txt");
+       1480, 100*1480, size_TB, rate_TB, "bucket_2.4.txt");
 		 new Thread(lb).start();
 	 }
 }
