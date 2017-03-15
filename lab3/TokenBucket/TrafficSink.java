@@ -2,8 +2,8 @@ import java.io.*;
 import java.net.*;
 
 class TrafficSink {
-  private static long currentTimeMicros() {
-    return System.nanoTime() / 1000;
+  private static long currentTimeNanos() {
+    return System.nanoTime();
   }
 
   public static void main(String[] args) throws IOException {
@@ -23,12 +23,12 @@ class TrafficSink {
 
     boolean receivedFirst = false;
     int i = 1;
-    long startTime = currentTimeMicros();
+    long startTime = currentTimeNanos();
     long previousTime = startTime;
     while (true) {
       socket.receive(p);
 
-      long now = currentTimeMicros();
+      long now = currentTimeNanos();
       if (!receivedFirst) {
         startTime = now;
         receivedFirst = true;
@@ -38,7 +38,7 @@ class TrafficSink {
       /*
        *  Write line to output file
        */
-      pout.println(i++ + "\t" + diffToPrevious + "\t" + p.getLength());
+      pout.println(i++ + "\t" + (diffToPrevious / 1000) + "\t" + p.getLength());
 
       previousTime = now;
 //System.out.println(i + " : " + p.getLength());

@@ -3,7 +3,7 @@ import java.net.*;
 import java.util.*;
 
 class ReferenceTrafficGenerator {
-  private static long currentTimeMicros() {
+  private static long currentTimeNanos() {
     return System.nanoTime() / 1000;
   }
 
@@ -16,12 +16,12 @@ class ReferenceTrafficGenerator {
       /*
        * Open file for output
        */
-      FileOutputStream fout =  new FileOutputStream("trafficgen_reference.data");
+      FileOutputStream fout =  new FileOutputStream("../trafficgen_2.2.1.data");
       PrintStream pout = new PrintStream(fout);
 
       socket = new DatagramSocket();
 
-      long startTime = currentTimeMicros();
+      long startTime = currentTimeNanos();
       long nextSendTime = startTime + T;
 
       long previousPacketTime = startTime;
@@ -35,23 +35,23 @@ class ReferenceTrafficGenerator {
           DatagramPacket d = new DatagramPacket(buf, buf.length, addr, 4444);
           socket.send(d);
           // Record the time that we sent this packet
-          long packetTime = currentTimeMicros();
+          long packetTime = currentTimeNanos();
           if (i == 0 && j == 0) {
             packetTime = startTime; // Make the first packet have time 0
           }
           /*
            *  Write line to output file
            */
-          pout.println((i * N +j + 1) + "\t" + (packetTime - /*startTime*/previousPacketTime) + "\t" + L);
+          pout.println((i * N +j + 1) + "\t" + ((packetTime - /*startTime*/previousPacketTime) / 1000) + "\t" + L);
 
           // Record the time of the previous packet
           previousPacketTime = packetTime;
         }
-        while (currentTimeMicros() < nextSendTime) {
+        while (currentTimeNanos() < nextSendTime) {
           // Wait until the correct time to send the next group
         }
-        // We will send the next group T seconds from now
-        nextSendTime = currentTimeMicros() + T;
+        // We will send the next group T microseconds from now
+        nextSendTime = currentTimeNanos() + T;
       }
     } catch (IOException e) {
       // Catch io errors from FileInputStream or readLine()
@@ -66,6 +66,9 @@ class ReferenceTrafficGenerator {
   public static void main(String[] args) throws IOException {
     InetAddress addr = InetAddress.getByName(args[0]);
 
-    sendPackets(addr, 205, 1, 100);
+    // 2.2.1 - 800, 1, 100
+    // 2.2.1 - 8000, 10, 100
+    // 2.2.1 - 205, 1, 100
+    sendPackets(addr, 800, 1, 100);
   }
 }
