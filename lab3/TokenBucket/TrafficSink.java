@@ -24,6 +24,7 @@ class TrafficSink {
     boolean receivedFirst = false;
     int i = 1;
     long startTime = currentTimeMicros();
+    long previousTime = startTime;
     while (true) {
       socket.receive(p);
 
@@ -32,12 +33,14 @@ class TrafficSink {
         startTime = now;
         receivedFirst = true;
       }
-      long arrivalTime = now - startTime;
+      long diffToPrevious = now - previousTime;
 
       /*
        *  Write line to output file
        */
-      pout.println(i++ + "\t" + arrivalTime + "\t" + p.getLength());
+      pout.println(i++ + "\t" + diffToPrevious + "\t" + p.getLength());
+
+      previousTime = now;
 //System.out.println(i + " : " + p.getLength());
     }
   }

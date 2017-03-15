@@ -26,7 +26,7 @@ class ReferenceTrafficGenerator {
       long startTime = currentTimeMicros();
       long nextSendTime = startTime + T;
 
-      //long previousPacketTime = startTime;
+      long previousPacketTime = startTime;
 
       // We are going to be sending 10000 packets
       for (int i = 0; i < Math.ceil(10000.0 / N); i++) {
@@ -44,10 +44,10 @@ class ReferenceTrafficGenerator {
           /*
            *  Write line to output file
            */
-          pout.println((i * N +j + 1) + "\t" + (packetTime - startTime/*previousPacketTime*/) + "\t" + L);
+          pout.println((i * N +j + 1) + "\t" + (packetTime - /*startTime*/previousPacketTime) + "\t" + L);
 
           // Record the time of the previous packet
-          //previousPacketTime = packetTime;
+          previousPacketTime = packetTime;
         }
         while (currentTimeMicros() < nextSendTime) {
           // Wait until the correct time to send the next group
