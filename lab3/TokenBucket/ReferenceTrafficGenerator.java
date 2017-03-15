@@ -4,11 +4,11 @@ import java.util.*;
 
 class ReferenceTrafficGenerator {
   private static long currentTimeNanos() {
-    return System.nanoTime() / 1000;
+    return System.nanoTime();
   }
 
   /*
-   * Every T usec transmit a group of N packets back-to-back, each of size L
+   * Every T nsec transmit a group of N packets back-to-back, each of size L
    */
   private static void sendPackets(InetAddress addr, long T, int N, int L) {
     DatagramSocket socket = null;
@@ -22,12 +22,16 @@ class ReferenceTrafficGenerator {
       socket = new DatagramSocket();
 
       long startTime = currentTimeNanos();
-      long nextSendTime = startTime + T;
+      long groupEndTime = startTime + T;
 
       long previousPacketTime = startTime;
 
       // We are going to be sending 10000 packets
       for (int i = 0; i < Math.ceil(10000.0 / N); i++) {
+        if (i != 0) {
+          groupEndTime = currentTimeNanos() + T;
+          //System.out.println(groupEndTime);
+        }
         // Send N packets back-to-back for this group
         for (int j = 0; j < N; j++) {
           // Send a packet of size L
@@ -47,11 +51,16 @@ class ReferenceTrafficGenerator {
           // Record the time of the previous packet
           previousPacketTime = packetTime;
         }
-        while (currentTimeNanos() < nextSendTime) {
-          // Wait until the correct time to send the next group
+        int k = 0;
+        long waitingTime = groupEndTime - currentTimeNanos();
+        if (waitingTime > 0) {
+          try {
+            Thread.sleep(waitingTime / 1000000l, (int) (waitingTime % 1000000l));
+          } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
         }
-        // We will send the next group T microseconds from now
-        nextSendTime = currentTimeNanos() + T;
       }
     } catch (IOException e) {
       // Catch io errors from FileInputStream or readLine()
@@ -66,9 +75,9 @@ class ReferenceTrafficGenerator {
   public static void main(String[] args) throws IOException {
     InetAddress addr = InetAddress.getByName(args[0]);
 
-    // 2.2.1 - 800, 1, 100
-    // 2.2.1 - 8000, 10, 100
-    // 2.2.1 - 205, 1, 100
-    sendPackets(addr, 800, 1, 100);
+    // 2.2.1 - 800us, 1, 100
+    // 2.2.1 - 8000us, 10, 100
+    // 2.2.1 - 205us, 1, 100
+    sendPackets(addr, 800000, 1, 100);
   }
 }
