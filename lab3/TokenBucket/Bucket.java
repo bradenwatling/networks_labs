@@ -58,7 +58,13 @@ public class Bucket implements Runnable
 		long elapsed = now - lastTime;
 
 		// Increment the number of tokens by the truncated number of tokenIntervals that have elapsed
-		noTokens += (int) (elapsed / tokenInterval);
+    // Limit the number of tokens we add to noTokens to prevent overflow
+    long addedTokens = elapsed / tokenInterval;
+    if (addedTokens > size - noTokens) {
+      addedTokens = size - noTokens;
+    }
+
+		noTokens += (int) (addedTokens);
 		// Update lastTime to hold the time of the last token we generated. We subtract the remainder
 		// so that we don't lose any information about partially generated tokens
 		lastTime = now - (now % tokenInterval);
