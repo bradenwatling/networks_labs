@@ -10,7 +10,7 @@ public class part2_2 {
     int size_TB = 100;
     int rate_TB = 500000; // 4 Mbps = 0.5MBps
 		 TokenBucket lb = new TokenBucket(4444, "localhost", 4445,
-       1024, 100*1024, size_TB, rate_TB, "bucket_2.2.1.txt");
+       100, 100*100, size_TB, rate_TB, "bucket_2.2.1.txt");
 		 new Thread(lb).start();
 	 }
 }
