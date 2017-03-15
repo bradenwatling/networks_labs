@@ -7,10 +7,10 @@ public class part2_2 {
 		// buffer capacity is 100*1024 bytes,
 		// token bucket has 10000 tokens, rate 5000 tokens/sec, and
 		// records packet arrivals to bucket.txt).
-    int size_TB = 500;
+    int size_TB = 100;
     int rate_TB = 500000; // 4 Mbps = 0.5MBps
 		 TokenBucket lb = new TokenBucket(4444, "localhost", 4445,
-       100, 100*100, size_TB, rate_TB, "bucket_2.2.2.txt");
+       100, 100*100, size_TB, rate_TB, "bucket_2.2.3.txt");
 		 new Thread(lb).start();
 	 }
 }
