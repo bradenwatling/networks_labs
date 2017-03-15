@@ -34,12 +34,12 @@ class ReferenceTrafficGenerator {
         }
         // Send N packets back-to-back for this group
         for (int j = 0; j < N; j++) {
+          // Record the time that we sent this packet
+          long packetTime = currentTimeNanos();
           // Send a packet of size L
           byte[] buf = new byte[L];
           DatagramPacket d = new DatagramPacket(buf, buf.length, addr, 4444);
           socket.send(d);
-          // Record the time that we sent this packet
-          long packetTime = currentTimeNanos();
           if (i == 0 && j == 0) {
             packetTime = startTime; // Make the first packet have time 0
           }
