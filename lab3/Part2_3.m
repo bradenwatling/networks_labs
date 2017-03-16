@@ -11,7 +11,7 @@ bucket_sum = 0;
 sink_time_sum = -sink_time(1);
 sink_sum = 0;
 
-max_size = length(bucket_size)
+max_size = length(bucket_size);
 
 gen_arrivals = ones(max_size, 1) * gen_size(length(gen_size));
 gen_acc_time = ones(max_size, 1) * gen_time(length(gen_time));

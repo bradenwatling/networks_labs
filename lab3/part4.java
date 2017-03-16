@@ -13,11 +13,11 @@ public class part4 {
     // 2.4 - Choose the maximum rate that we can fill the bucket, which is one token every nanosecond
     // 4 - Choose rate and size of TB1 and TB2
     int size_TB1 = 1480 * 3; // Can burst 3 packets
-    int rate_TB1 = (int) (1480 / 0.000070); // No more than one packet every 70 us (approximately 500 packets for largest frame, 30 fps)
-    int size_TB2 = 1480 * 50000; // This isn't the burst size, just a limit for the second bucket
-    int rate_TB2 = 4000000; // Mean Bps of the movietrace
+    int rate_TB1 = (int) (1480 / 0.000160); // No more than one packet every 160 us (approximately 200 packets for average I frame, 30 fps)
+    int rate_TB2 = 4000000; // A little higher than the mean Bps of the movietrace
+    int size_TB2 = rate_TB2 / 30; // Limit the packets according to the second bucket on a per-frame basis (30 fps)
 		 TokenBucket lb = new TokenBucket(4444, "localhost", 4445,
-       1480, 50000*1480, size_TB1, rate_TB1, size_TB2, rate_TB2, "bucket_4.txt");
+       1480, (int) 7e7, size_TB1, rate_TB1, size_TB2, rate_TB2, "bucket_4.txt");
 		 new Thread(lb).start();
 	 }
 }
