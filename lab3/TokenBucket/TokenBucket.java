@@ -19,7 +19,8 @@ public class TokenBucket implements Runnable
 	// thread in charge of receiving packets and putting them in buffer
 	private TokenBucketReceiver receiver;
 	// thread in charge of generating and holding tokens
-	private Bucket bucket;
+	private Bucket bucket1;
+	private Bucket bucket2;
 	
 	
 	/**	  
@@ -35,9 +36,9 @@ public class TokenBucket implements Runnable
 	 */
 	public TokenBucket(int inPort, String outAddress, int outPort, 
 			int maxPacketSize, long bufferCapacity,
-			int bucketSize, int bucketRate, String fileName)
+			int bucketSize1, int bucketRate1, int bucketSize2, int bucketRate2, String fileName)
 	{
-		if (bucketSize < maxPacketSize)
+		if (bucketSize1 < maxPacketSize || bucketSize2 < maxPacketSize)
 		{
 			System.err.println("Bucket size should not be smaller than the maximum packet size!");
 			System.err.println("Token bucket will be constructed with given parameters, but arrival of" + 
@@ -45,18 +46,19 @@ public class TokenBucket implements Runnable
 		}
 		Buffer.MAX_PACKET_SIZE = maxPacketSize;
 		buffer = new Buffer(bufferCapacity);
-		bucket = new Bucket(bucketSize, bucketRate);
+		bucket1 = new Bucket(bucketSize1, bucketRate1);
+		bucket2 = new Bucket(bucketSize2, bucketRate2);
 		try
 		{
 			InetAddress destAddress = InetAddress.getByName(outAddress);
-			sender = new TokenBucketSender(buffer, destAddress, outPort, bucket);
+			sender = new TokenBucketSender(buffer, destAddress, outPort, bucket1, bucket2);
 		} 
 		catch (UnknownHostException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		receiver = new TokenBucketReceiver(buffer, inPort, sender, bucket, fileName);
+		receiver = new TokenBucketReceiver(buffer, inPort, sender, bucket1, bucket2, fileName);
 	}
 	
 	/**
@@ -65,7 +67,8 @@ public class TokenBucket implements Runnable
 	 */
 	public void run()
 	{
-		new Thread(bucket).start();
+		new Thread(bucket1).start();
+		new Thread(bucket2).start();
 		new Thread(receiver).start();
 		new Thread(sender).start();
 	}

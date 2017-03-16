@@ -48,21 +48,25 @@ class MovieTrafficGenerator {
          *  Convert each element to desired data type
          */
         p.seqNo = Integer.parseInt(col1);
-        p.time = Double.parseDouble(col2);
+        p.time = Double.parseDouble(col2) * 1000;
         p.size = Integer.parseInt(col4);
         packets.add(p);
       }
 
       long startTime = currentTimeMicros();
 
+
+      long previousSendTime = startTime;
+      long previousPacketTime = 0;
       /*
        * Send the data once the entire file has been read
        */
       for (Packet p : packets) {
         long sendTime;
-        while ((sendTime = currentTimeMicros() - startTime) <= p.time) {
+        while ((sendTime = currentTimeMicros() - previousSendTime) <= p.time - previousPacketTime) {
           // Wait until the correct time to send the packet
         }
+        previousPacketTime = (long) (p.time);
 
         /*System.out.println("Transmitting packet #" + seqNo +
                            ": packetTime=" + time +
@@ -70,19 +74,22 @@ class MovieTrafficGenerator {
 
 	// if movie packet is larger than 1024 split into smaller parts
 	int size = p.size;
-	while(size > 1024)
+	while(size > 1480)
 	{
-		byte[] buf = new byte[1024];
+		byte[] buf = new byte[1480];
 		DatagramPacket fragment = new DatagramPacket(buf, buf.length, addr, 4444);
 					
 		socket.send(fragment);
-		size = size - 1024;
+		size = size - 1480;
 	}
 
         byte[] buf = new byte[size];
         DatagramPacket d = new DatagramPacket(buf, buf.length, addr, 4444);
         socket.send(d);
+
+        previousSendTime = currentTimeMicros();
       }
+
     } catch (IOException e) {
       // Catch io errors from FileInputStream or readLine()
       System.out.println("IOException: " + e.getMessage());

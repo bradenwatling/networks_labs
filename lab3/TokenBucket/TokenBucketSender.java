@@ -27,7 +27,8 @@ public class TokenBucketSender implements Runnable
 	// buffer from which packets are sent
 	private Buffer buffer;
 	// Bucket from which tokens are removed when sending packets
-	private Bucket bucket;
+	private Bucket bucket1;
+	private Bucket bucket2;
 	
 	/**
 	 * Constructor. Creates socket.
@@ -36,13 +37,14 @@ public class TokenBucketSender implements Runnable
 	 * @param destPort Port to which packets are sent.
 	 * @param bucket Bucket from which tokens are removed when sending packets.
 	 */
-	public TokenBucketSender(Buffer buffer, InetAddress destAddress, int destPort, Bucket bucket)
+	public TokenBucketSender(Buffer buffer, InetAddress destAddress, int destPort, Bucket bucket1, Bucket bucket2)
 	{
 		this.sendingInProgress = false;
 		this.buffer = buffer;
 		this.destAddress = destAddress;
 		this.destPort = destPort;
-		this.bucket = bucket;
+		this.bucket1 = bucket1;
+		this.bucket2 = bucket2;
 		
 		try
 		{
@@ -92,9 +94,10 @@ public class TokenBucketSender implements Runnable
 			if ((packet = buffer.peek()) != null)
 			{
 				// if there are enough tokens
-				if (bucket.getNoTokens() >= packet.getLength())
+				if (bucket1.getNoTokens() >= packet.getLength() && bucket2.getNoTokens() >= packet.getLength())
 				{
-					bucket.removeTokens(packet.getLength());
+					bucket1.removeTokens(packet.getLength());
+					bucket2.removeTokens(packet.getLength());
 					// set sedingInProgress so that TokenBucketReceiver can't send packets
 					sendingInProgress = true;
 					buffer.removePacket();
@@ -105,7 +108,8 @@ public class TokenBucketSender implements Runnable
 				else
 				{
 					// get how many nanoseconds before there are enough tokens to send packet
-					long timeToWait = bucket.getWaitingTime(packet.getLength());
+					long timeToWait = Math.max(bucket1.getWaitingTime(packet.getLength()),
+                                     bucket2.getWaitingTime(packet.getLength()));
 					try
 					{
 						// sleep until there are enough tokens

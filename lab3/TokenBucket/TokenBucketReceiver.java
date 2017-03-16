@@ -20,7 +20,8 @@ public class TokenBucketReceiver implements Runnable
 	// port on which packets are received
 	private int port;
 	// Bucket from which tokens are consumed when sending packets
-	private Bucket bucket;	
+	private Bucket bucket1;	
+	private Bucket bucket2;	
 	// name of output file
 	private String fileName;
 	
@@ -32,12 +33,13 @@ public class TokenBucketReceiver implements Runnable
 	 * @param bucket Bucket from which tokens are consumed when sending packets.
 	 * @param fileName Name of output file.
 	 */
-	public TokenBucketReceiver(Buffer buffer, int port, TokenBucketSender sender, Bucket bucket, String fileName)
+	public TokenBucketReceiver(Buffer buffer, int port, TokenBucketSender sender, Bucket bucket1, Bucket bucket2, String fileName)
 	{
 		this.buffer = buffer;
 		this.port = port;
 		this.sender = sender;
-		this.bucket = bucket;
+		this.bucket1 = bucket1;
+		this.bucket2 = bucket2;
 		this.fileName = fileName;
 	}
 
@@ -75,9 +77,10 @@ public class TokenBucketReceiver implements Runnable
 				{
 					previsuTime = time;
 				}
-				int noTokens = bucket.getNoTokens();
+				int noTokens1 = bucket1.getNoTokens();
+				int noTokens2 = bucket2.getNoTokens();
 				long bufferSize = buffer.getSizeInBytes();
-				pOut.println((time-previsuTime)/1000 + "\t" + packet.getLength() + "\t" + bufferSize + "\t" + noTokens);
+				pOut.println((time-previsuTime)/1000 + "\t" + packet.getLength() + "\t" + bufferSize + "\t" + noTokens1 + "\t" + noTokens2);
 				previsuTime = time;
 				
 				/*
@@ -88,9 +91,11 @@ public class TokenBucketReceiver implements Runnable
 				// and there are enough tokens received packet should be sent immediately
 				if (bufferSize == 0 
 					&& !sender.sendingInProgress
-					&& noTokens >= packet.getLength())
+					&& noTokens1 >= packet.getLength()
+					&& noTokens2 >= packet.getLength())
 				{
-					bucket.removeTokens(packet.getLength());
+					bucket1.removeTokens(packet.getLength());
+					bucket2.removeTokens(packet.getLength());
 					sender.sendPacket(packet);
 				}
 				// else add packet to buffer if there is enough space
