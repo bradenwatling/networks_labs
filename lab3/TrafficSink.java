@@ -7,7 +7,7 @@ class TrafficSink {
   }
 
   public static void main(String[] args) throws IOException {
-    DatagramSocket socket = new DatagramSocket(4444);
+    DatagramSocket socket = new DatagramSocket(4445);
     byte[] buf = new byte[1500];
     DatagramPacket p = new DatagramPacket(buf, buf.length);
     System.out.println("Waiting ...");
