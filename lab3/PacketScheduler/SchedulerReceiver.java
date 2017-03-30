@@ -81,7 +81,6 @@ public class SchedulerReceiver implements Runnable
 					long bufferSize = buffers[i].getSizeInBytes();
 					pOut.print(bufferSize + "\t");
 				}
-				pOut.println();
 				previsuTime = startTime;
 				
 				/*
@@ -89,10 +88,10 @@ public class SchedulerReceiver implements Runnable
 				 */
 				
 				// add packet to a queue if there is enough space
-				if (buffers[0].addPacket(new DatagramPacket(packet.getData(), packet.getLength())) < 0)
-				{
-					System.err.println("Packet dropped (queue full).");
-				}
+        boolean droppedPacket = buffers[0].addPacket(new DatagramPacket(packet.getData(), packet.getLength())) < 0;
+        // Record whether the packet was dropped
+        pOut.print((droppedPacket ? "1" : "0") + "\t");
+				pOut.println();
 				/*
 				 * TODO: 
 				 * Replace previous command with code that:
