@@ -14,7 +14,7 @@ public class FIFOScheduler {
      */
     PacketScheduler ps = new PacketScheduler(4444,
         "localhost", 4445, 10000000, 1, 1024,
-        new long [] {100*1024}, "FIFOScheduler.data");
+        new long [] {100*1024}, "FIFOSchedulerReceiver.data", "FIFOSchedulerSender.data");
     // start packet scheduler
     new Thread(ps).start();
   }

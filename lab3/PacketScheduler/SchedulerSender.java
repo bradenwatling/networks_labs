@@ -1,10 +1,13 @@
 package PacketScheduler;
 
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 
 
 /**
@@ -29,6 +32,7 @@ public class SchedulerSender implements Runnable
 	private Buffer[] buffers;
 	// link capacity at which packet scheduler operates (pbs)
 	private long linkCapacity;
+  private String fileName;
 
 	
 	/**
@@ -38,13 +42,14 @@ public class SchedulerSender implements Runnable
 	 * @param destPort Port to which packets are sent.
 	 * @param linkCapacity Link capacity at which FIFO scheduler operates (bps).
 	 */
-	public SchedulerSender(Buffer[] buffers, InetAddress destAddress, int destPort, long linkCapacity)
+	public SchedulerSender(Buffer[] buffers, InetAddress destAddress, int destPort, long linkCapacity, String fileName)
 	{
 		this.senderActiveUntil = 0l;
 		this.buffers = buffers;
 		this.destAddress = destAddress;
 		this.destPort = destPort;
 		this.linkCapacity = linkCapacity;
+    this.fileName = fileName;
 		
 		try
 		{
@@ -94,85 +99,106 @@ public class SchedulerSender implements Runnable
 	 */
 	public void run()
 	{
-		while(true)
+    try {
+      FileOutputStream fOut =  new FileOutputStream(fileName);
+      PrintStream pOut = new PrintStream (fOut);
+
+      while(true)
+      {
+        DatagramPacket packet = null;	
+        // number of empty buffers
+        int noEmpty = 0;
+        
+        // get time when next packet can be sent 
+        long startTime = System.nanoTime();
+        long nextSendOK = senderActiveUntil;
+        
+        // if no packet is in transmission look for next packet to send
+        if (System.nanoTime() >= nextSendOK)
+        {
+          /*
+           * Check if there is a packet in queue.
+           * If there is send packet, remove it form queue.
+           * If there is no packet increase noEmpty that keeps track of number of empty queues 
+           */
+          if ((packet = buffers[0].peek()) != null)
+          {
+            sendPacket(packet, startTime);
+            buffers[0].removePacket();
+          }
+          else
+          {
+            noEmpty++;
+          }
+          
+          /*
+           * TODO:
+           * Implement sending of a SINGLE packet from packet scheduler.
+           * Variable noEmpty must be set to total number of queues if all are empty. 
+           * 
+           * NOTE: The code you are adding sends at most one packet!
+           * 
+           * Look at the example above to find out how to check if a particular queue is empty.
+           * Once you have found from which queue to send, send a packet and remove it from that queue 
+           * (as in example above).
+           */
+        }
+        else
+        {
+          // wait until it is possible to send
+          long timeToWait = nextSendOK-startTime;
+          long now = System.nanoTime();
+          // Busy wait
+          while (System.nanoTime() <= now + timeToWait);
+          /*try 
+          {
+            Thread.sleep(timeToWait/1000000, (int)timeToWait%1000000);
+          } 
+          catch (InterruptedException e)
+          {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }*/
+          continue;
+        }
+        
+        // there are no packets in buffers to send. Wait for one to arrive to buffer.
+        // (busy wait)
+        if (noEmpty == buffers.length)
+        {	
+          boolean anyNotEmpty = false;
+          for (int i=0; i<buffers.length; i++)
+          {
+            if (buffers[i].getSize()>0)
+            {
+              anyNotEmpty = true;
+            }
+          }
+          while(!anyNotEmpty)
+          {
+            for (int i=0; i<buffers.length; i++)
+            {
+              if (buffers[i].getSize()>0)
+              {
+                anyNotEmpty = true;
+              }
+            }
+          }
+        }	else if (packet != null) {
+          // Get the packetID from the packet
+          ByteBuffer bb = ByteBuffer.wrap(packet.getData(), Buffer.MAX_PACKET_SIZE - Integer.SIZE - Long.SIZE, Integer.SIZE + Long.SIZE);
+          int packetID = bb.getInt();
+          long receiveTime = bb.getLong();
+          
+          pOut.print((packetID++) + "\t" + (System.nanoTime() - receiveTime)/1000 + "\t" + packet.getLength() + "\t");
+          pOut.println();
+        }
+      }
+		} 
+		catch (Exception e)
 		{
-			DatagramPacket packet = null;	
-			// number of empty buffers
-			int noEmpty = 0;
-			
-			// get time when next packet can be sent 
-			long startTime = System.nanoTime();
-			long nextSendOK = senderActiveUntil;
-			
-			// if no packet is in transmission look for next packet to send
-			if (System.nanoTime() >= nextSendOK)
-			{
-				/*
-				 * Check if there is a packet in queue.
-				 * If there is send packet, remove it form queue.
-				 * If there is no packet increase noEmpty that keeps track of number of empty queues 
-				 */
-				if ((packet = buffers[0].peek()) != null)
-				{
-					sendPacket(packet, startTime);
-					buffers[0].removePacket();
-				}
-				else
-				{
-					noEmpty++;
-				}
-				
-				/*
-				 * TODO:
-				 * Implement sending of a SINGLE packet from packet scheduler.
-				 * Variable noEmpty must be set to total number of queues if all are empty. 
-				 * 
-				 * NOTE: The code you are adding sends at most one packet!
-				 * 
-				 * Look at the example above to find out how to check if a particular queue is empty.
-				 * Once you have found from which queue to send, send a packet and remove it from that queue 
-				 * (as in example above).
-				 */
-			}
-			else
-			{
-				// wait until it is possible to send
-				long timeToWait = nextSendOK-startTime;
-				try 
-				{
-					Thread.sleep(timeToWait/1000000, (int)timeToWait%1000000);
-				} 
-				catch (InterruptedException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				continue;
-			}
-			
-			// there are no packets in buffers to send. Wait for one to arrive to buffer.
-			// (busy wait)
-			if (noEmpty == buffers.length)
-			{	
-				boolean anyNotEmpty = false;
-				for (int i=0; i<buffers.length; i++)
-				{
-					if (buffers[i].getSize()>0)
-					{
-						anyNotEmpty = true;
-					}
-				}
-				while(!anyNotEmpty)
-				{
-					for (int i=0; i<buffers.length; i++)
-					{
-						if (buffers[i].getSize()>0)
-						{
-							anyNotEmpty = true;
-						}
-					}
-				}
-			}	
-		}
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 	}
 }

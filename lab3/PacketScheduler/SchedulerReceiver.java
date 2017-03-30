@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.nio.ByteBuffer;
 
 
 /**
@@ -18,6 +19,7 @@ public class SchedulerReceiver implements Runnable
 	private int port;
 	// name of output file
 	private String fileName;
+  private int packetID = 0;
 	
 	/**
 	 * Constructor.
@@ -58,6 +60,11 @@ public class SchedulerReceiver implements Runnable
 				// wait for packet, when arrives receive and recored arrival time
 				socket.receive(packet);
 				long startTime=System.nanoTime();
+
+        // Record the packet number for this packet
+        ByteBuffer bb = ByteBuffer.wrap(buf, Buffer.MAX_PACKET_SIZE - Integer.SIZE - Long.SIZE, Integer.SIZE + Long.SIZE);
+        bb.putInt(packetID);
+        bb.putLong(startTime);
 				
 				/*
 				 * Record arrival to file in following format:
@@ -68,7 +75,7 @@ public class SchedulerReceiver implements Runnable
 				{
 					previsuTime = startTime;
 				}
-				pOut.print((startTime-previsuTime)/1000 + "\t" + packet.getLength() + "\t");
+				pOut.print((packetID++) + "\t" + (startTime-previsuTime)/1000 + "\t" + packet.getLength() + "\t");
 				for (int i = 0; i<buffers.length; i++)
 				{
 					long bufferSize = buffers[i].getSizeInBytes();

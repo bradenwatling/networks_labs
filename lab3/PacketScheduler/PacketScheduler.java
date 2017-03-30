@@ -33,7 +33,7 @@ public class PacketScheduler implements Runnable
 	 */
 	public PacketScheduler(int inPort, String outAddress, int outPort, long linkCapacity,
 			int numBuffer,
-			int maxPacketSize, long[] bufferCapacities, String fileName)
+			int maxPacketSize, long[] bufferCapacities, String receiverFileName, String senderFileName)
 	{
 		Buffer.MAX_PACKET_SIZE = maxPacketSize;
 		if (numBuffer != bufferCapacities.length)
@@ -52,14 +52,14 @@ public class PacketScheduler implements Runnable
 		try
 		{
 			InetAddress destAddress = InetAddress.getByName(outAddress);
-			sender = new SchedulerSender(buffers, destAddress, outPort, linkCapacity);
+			sender = new SchedulerSender(buffers, destAddress, outPort, linkCapacity, senderFileName);
 		} 
 		catch (UnknownHostException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		receiver = new SchedulerReceiver(buffers, inPort,  fileName);
+		receiver = new SchedulerReceiver(buffers, inPort,  receiverFileName);
 	}
 	
 	/**
