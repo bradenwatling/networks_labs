@@ -92,7 +92,7 @@ public class SchedulerReceiver implements Runnable
         // Determine the index of the queue for this packet based on its priority
         int priority = ByteBuffer.wrap(buf).get();
         int priorityIndex = priority - 1;
-        if (priorityIndex < buffers.length) {
+        if (priorityIndex >= 0 && priorityIndex < buffers.length) {
           // add packet to a queue if there is enough space
           droppedPacket = buffers[priorityIndex].addPacket(new DatagramPacket(packet.getData(), packet.getLength())) < 0;
         } else {

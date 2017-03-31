@@ -89,6 +89,7 @@ class MovieTrafficGenerator {
           while(size > 1480)
           {
             byte[] buf = new byte[1480];
+            ByteBuffer.wrap(buf).put((byte) 2);
             DatagramPacket fragment = new DatagramPacket(buf, buf.length, addr, 4444);
             socket.send(fragment);
             size = size - 1480;

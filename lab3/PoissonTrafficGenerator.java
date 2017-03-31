@@ -117,6 +117,6 @@ class PoissonTrafficGenerator {
   public static void main(String[] args) throws IOException {
     InetAddress addr = InetAddress.getByName(args[0]);
 
-    sendPackets(addr, "poisson3.data", 9);
+    sendPackets(addr, "poisson3.data", 1);
   }
 }
