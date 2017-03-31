@@ -1,4 +1,4 @@
-package PacketScheduler;
+package FIFOScheduler;
 
 import java.net.DatagramPacket;
 import java.util.concurrent.BlockingQueue;

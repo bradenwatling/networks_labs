@@ -1,4 +1,4 @@
-package PacketScheduler;
+package FIFOScheduler;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

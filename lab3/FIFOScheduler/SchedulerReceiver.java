@@ -1,4 +1,4 @@
-package PacketScheduler;
+package FIFOScheduler;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;

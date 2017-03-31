@@ -1,4 +1,4 @@
-import PacketScheduler.PacketScheduler;
+import FIFOScheduler.PacketScheduler;
 
 public class FIFOScheduler {
   public static void main(String[] args) {
