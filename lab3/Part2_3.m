@@ -18,7 +18,8 @@ for x = 0:2
     sink_agg_time = zeros(length(sink_id), 1);
 
     % the id of the next sender packet
-    next_sender_packet = 0;
+    next_sender_packet = sender_id(1);
+    sender_index = 1;
     
     for i = 1:length(receiver_id)
         dropped_sum = dropped_sum + receiver_dropped(i);
@@ -28,6 +29,8 @@ for x = 0:2
         
         if next_sender_packet == receiver_id(i)
             sender_agg_time(sender_index) = receiver_time_sum;
+            sender_index = sender_index + 1;
+            next_sender_packet = sender_id(min(sender_index, length(sender_id)));
         end
     end
 
@@ -43,7 +46,7 @@ for x = 0:2
     ylabel('Backlog (bytes)')
     
     figure(N + 1)
-    plot(receiver_agg_time, sender_waittime, 'b')
+    plot(sender_agg_time, sender_waittime, 'b')
     title(['Waiting Time for N=', num2str(N)])
     xlabel('Time (microseconds)')
     ylabel('Waiting Time (microseconds)')
