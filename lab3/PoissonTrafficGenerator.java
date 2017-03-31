@@ -65,29 +65,36 @@ class PoissonTrafficGenerator {
         packets.add(p);
       }
 
-      long startTime = currentTimeMicros();
-      long prevSendTime = currentTimeMicros();
+      long begin = currentTimeMicros();
+      long MAX_TIME = 100_000_000;
+      // Run until we've hit MAX_TIME
+      while (currentTimeMicros() - begin < MAX_TIME) {
+        long startTime = currentTimeMicros();
+        long prevSendTime = currentTimeMicros();
 
-      /*
-       * Send the data once the entire file has been read
-       */
-      for (Packet p : packets) {
-        long now;
-        while ((now = currentTimeMicros()) - prevSendTime <= p.time) {
-          // Wait until the correct time to send the packet
+        /*
+         * Send the data once the entire file has been read
+         */
+        for (Packet p : packets) {
+          if (currentTimeMicros() - begin >= MAX_TIME) break;
+
+          long now;
+          while ((now = currentTimeMicros()) - prevSendTime <= p.time) {
+            // Wait until the correct time to send the packet
+          }
+
+          // Record the time we sent this last packet
+          prevSendTime = now;
+
+          /*System.out.println("Transmitting packet #" + p.seqNo +
+                             ": packetTime=" + p.time +
+                             ", sendTime=" + (now - startTime));*/
+
+          byte[] buf = new byte[p.size];
+          ByteBuffer.wrap(buf).put((byte) 1);
+          DatagramPacket d = new DatagramPacket(buf, buf.length, addr, 4444);
+          socket.send(d);
         }
-
-        // Record the time we sent this last packet
-        prevSendTime = now;
-
-        /*System.out.println("Transmitting packet #" + p.seqNo +
-                           ": packetTime=" + p.time +
-                           ", sendTime=" + (now - startTime));*/
-
-        byte[] buf = new byte[p.size];
-        ByteBuffer.wrap(buf).put((byte) 1);
-        DatagramPacket d = new DatagramPacket(buf, buf.length, addr, 4444);
-        socket.send(d);
       }
     } catch (IOException e) {
       // Catch io errors from FileInputStream or readLine()

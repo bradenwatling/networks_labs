@@ -90,7 +90,8 @@ public class SchedulerReceiver implements Runnable
         boolean droppedPacket;
 
         // Determine the index of the queue for this packet based on its priority
-        int priorityIndex = ByteBuffer.wrap(buf).get() - 1;
+        int priority = ByteBuffer.wrap(buf).get();
+        int priorityIndex = priority - 1;
         if (priorityIndex < buffers.length) {
           // add packet to a queue if there is enough space
           droppedPacket = buffers[priorityIndex].addPacket(new DatagramPacket(packet.getData(), packet.getLength())) < 0;
@@ -100,6 +101,7 @@ public class SchedulerReceiver implements Runnable
 
         // Record whether the packet was dropped
         pOut.print((droppedPacket ? "1" : "0") + "\t");
+        pOut.print(priority + "\t");
 				pOut.println();
 			}
 		} 

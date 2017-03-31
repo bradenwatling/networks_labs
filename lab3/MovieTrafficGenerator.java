@@ -63,36 +63,42 @@ class MovieTrafficGenerator {
         packets.add(p);
       }
 
-      long startTime = currentTimeMicros();
+      long begin = currentTimeMicros();
+      long MAX_TIME = 100_000_000;
+      // Run until we've hit MAX_TIME
+      while (currentTimeMicros() - begin < MAX_TIME) {
+        long startTime = currentTimeMicros();
 
-      /*
-       * Send the data once the entire file has been read
-       */
-      for (Packet p : packets) {
-        long sendTime;
-        while ((sendTime = currentTimeMicros() - startTime) <= p.time*1000) {
-          // Wait until the correct time to send the packet
+        /*
+         * Send the data once the entire file has been read
+         */
+        for (Packet p : packets) {
+          if (currentTimeMicros() - begin >= MAX_TIME) break;
+
+          long sendTime;
+          while ((sendTime = currentTimeMicros() - startTime) <= p.time*1000) {
+            // Wait until the correct time to send the packet
+          }
+
+          /*System.out.println("Transmitting packet #" + seqNo +
+                             ": packetTime=" + time +
+                             ", sendTime=" + sendTime);*/
+
+          // if movie packet is larger than 1480 (MAX size) split into smaller parts
+          int size = p.size;
+          while(size > 1480)
+          {
+            byte[] buf = new byte[1480];
+            DatagramPacket fragment = new DatagramPacket(buf, buf.length, addr, 4444);
+            socket.send(fragment);
+            size = size - 1480;
+          }
+
+          byte[] buf = new byte[size];
+          ByteBuffer.wrap(buf).put((byte) 2);
+          DatagramPacket d = new DatagramPacket(buf, buf.length, addr, 4444);
+          socket.send(d);
         }
-
-        /*System.out.println("Transmitting packet #" + seqNo +
-                           ": packetTime=" + time +
-                           ", sendTime=" + sendTime);*/
-
-	// if movie packet is larger than 1480 (MAX size) split into smaller parts
-	int size = p.size;
-	while(size > 1480)
-	{
-		byte[] buf = new byte[1480];
-		DatagramPacket fragment = new DatagramPacket(buf, buf.length, addr, 4444);
-					
-		socket.send(fragment);
-		size = size - 1480;
-	}
-
-        byte[] buf = new byte[size];
-        ByteBuffer.wrap(buf).put((byte) 2);
-        DatagramPacket d = new DatagramPacket(buf, buf.length, addr, 4444);
-        socket.send(d);
       }
     } catch (IOException e) {
       // Catch io errors from FileInputStream or readLine()
