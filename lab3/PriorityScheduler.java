@@ -1,6 +1,6 @@
-import FIFOScheduler.PacketScheduler;
+import PriorityScheduler.PacketScheduler;
 
-public class FIFOScheduler {
+public class PriorityScheduler {
   public static void main(String[] args) {
     /*
      * Create a new packet scheduler.
@@ -13,8 +13,8 @@ public class FIFOScheduler {
      * Arrivals of packets are recorded to file ps.txt.
      */
     PacketScheduler ps = new PacketScheduler(4444,
-        "localhost", 4445, 10000000, 1, 1480,
-        new long [] {100*1024}, "FIFOSchedulerReceiver.data", "FIFOSchedulerSender.data");
+        "localhost", 4445, 20000000, 2, 1480,
+        new long [] {100*1024, 100*1024}, "PrioritySchedulerReceiver.data", "PrioritySchedulerSender.data");
     // start packet scheduler
     new Thread(ps).start();
   }
