@@ -80,7 +80,6 @@ public class Estimator {
   }
 
   public static void main(String[] args) {
-
     if (args.length != 6) {
       System.out.println("USAGE: Estimator <targetHost> <targetPort> <receivePort> <numPackets> <packetSize [bytes]> <packetRate [kbps]>");
     } else {
@@ -104,21 +103,25 @@ public class Estimator {
         // Wait for all packets to return
         latch.await();
 
+        FileOutputStream fout =  new FileOutputStream("packet_train.data");
+        PrintStream pout = new PrintStream (fout);
+
         // Analyze the data that was collected
         PacketData first = null;
         for (int i = 0; i < numPackets; i++) {
           PacketData current = packetData[i];
           if (first == null) first = current;
 
+          // Determine the sequence number, send time, and receive time (in microseconds relative
+          // to the send time of the first packet)
           int seqNo = current.seqNo;
           long sendTime = (current.sendTime - first.sendTime) / 1000;
           long receiveTime = (current.receiveTime - first.sendTime) / 1000;
 
-          System.out.println(seqNo + "\t" + sendTime + "\t" + receiveTime);
-
-          // TODO output this data to a file
+          String line = seqNo + "\t" + sendTime + "\t" + receiveTime;
+          System.out.println(line);
+          pout.println(line);
         }
-
       } catch (Exception e) {
         e.printStackTrace();
       }
