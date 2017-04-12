@@ -1,12 +1,14 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.nio.ByteBuffer;
-import java.util.concurrent.CountDownLatch;
+import java.nio.*;
+import java.util.concurrent.*;
 
 public class Estimator {
 
   private static final int MAX_PACKET_SIZE = 1480;
+  // Only wait a maximum of 30s for packets to be returned
+  private static final int RECEIVE_TIMEOUT = 30000;
 
   static class PacketData {
     int seqNo;
@@ -46,6 +48,7 @@ public class Estimator {
         packetData[i].seqNo = i;
         // Record the time that we sent this packet
         packetData[i].sendTime = System.nanoTime();
+        packetData[i].receiveTime = Long.MAX_VALUE;
 
         // Send the packet to the target
         DatagramPacket d = new DatagramPacket(buf, buf.length, targetAddr, targetPort);
@@ -105,14 +108,24 @@ public class Estimator {
     latch = new CountDownLatch(numPackets);
   }
 
+  /**
+   * Sends the packet train and waits for the packets to be returned.
+   * Note: this will only wait for RECEIVE_TIMEOUT ms.
+   */
   public void run() throws InterruptedException {
     receivePackets();
     packetTrain();
 
     // Wait for all packets to return
-    latch.await();
+    boolean receivedAllPackets = latch.await(RECEIVE_TIMEOUT, TimeUnit.MILLISECONDS);
+    if (!receivedAllPackets) {
+      System.out.println("Timeout reached before all packets received");
+    }
   }
 
+  /**
+   * Returns the maximum backlog in bits.
+   */
   public int getMaxBacklog() {
     long[] sendTimestamps = new long[packetData.length];
     long[] recvTimestamps = new long[packetData.length];
@@ -157,9 +170,13 @@ public class Estimator {
     // The backlog at the end of the transmission should be 0
     assert(backlog == 0);
 
-    return maxBacklog;
+    // Return the maximum backlog in bits
+    return maxBacklog * 8;
   }
 
+  /**
+   * Writes the collected data to a file.
+   */
   public void writeData(String filename) throws FileNotFoundException {
     FileOutputStream fout =  new FileOutputStream(filename);
     PrintStream pout = new PrintStream (fout);
